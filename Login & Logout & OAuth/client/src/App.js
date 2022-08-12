@@ -1,24 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LandingPage from "./component/views/LandingPage/LandingPage";
+import LoginPage from "./component/views/LoginPage/LoginPage";
+import RegisterPage from "./component/views/RegisterPage/RegisterPage";
+import authCover from "./hoc/auth";
 
 function App() {
+  const LandingPageAuthPage = authCover(LandingPage, null);
+  const LoginPageAuthPage = authCover(LoginPage, null);
+  const RegisterPageAuthPage = authCover(RegisterPage, null);
+  // null 👉 아무나 출입이 가능
+  // true 👉 로그인한 유저만 출입이 가능
+  // false 👉 로그인한 유저는 출입이 불가능
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPageAuthPage />} />
+
+        <Route path="/login" element={<LoginPageAuthPage />} />
+
+        <Route path="/register" element={<RegisterPageAuthPage />} />
+      </Routes>
+    </Router>
   );
 }
 
