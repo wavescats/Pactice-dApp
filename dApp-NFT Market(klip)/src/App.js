@@ -33,6 +33,30 @@ function App() {
     // 빈배열에 담아준다
   };
 
+  const onClickCard = id => {
+    if (tab === "WALLET") {
+      onClickMyCard(id);
+    }
+    if (tab === "MARKET") {
+      onClickMarketCard(id);
+    }
+  };
+
+  // NFT를 판매하는 함수
+  const onClickMyCard = async tokenId => {
+    // tokenId 의 파라미터값은 밑에서 map 으로 반환한 값이 된다
+    KlipAPI.saleCard(myAddress, tokenId, setQrvalue, callback => {
+      alert(JSON.stringify(callback));
+    });
+  };
+
+  // 마켓에서 구매하는 함수
+  const onClickMarketCard = async tokenId => {
+    KlipAPI.buyCard(tokenId, setQrvalue, callback => {
+      alert(JSON.stringify(callback));
+    });
+  };
+
   const getUserData = () => {
     KlipAPI.getAddress(setQrvalue, async address => {
       setMyAddress(address);
@@ -103,12 +127,15 @@ function App() {
                 className="img-responsive"
                 key={index}
                 src={nfts[index].uri}
-
+                onClick={() => {
+                  onClickCard(list.id);
+                }}
                 // UseCaver.js 파일에서 nfts 배열안에 👉 id와 uri
               />
             ))}
           </div>
         ) : null}
+
         {tab === "MINT" ? (
           <div className="container" style={{ padding: 0, width: "100%" }}>
             <Card
