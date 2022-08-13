@@ -109,7 +109,6 @@ function App() {
             ))}
           </div>
         ) : null}
-
         {tab === "MINT" ? (
           <div className="container" style={{ padding: 0, width: "100%" }}>
             <Card
