@@ -4,6 +4,17 @@ import { KIP17_CONTRACT, MARKET_CONTRACT } from "../constants";
 const A2P_API_PREPARE_URL = "https://a2a-api.klipwallet.com/v2/a2a/prepare";
 const APP_NAME = "KLAY_MARKET";
 // 공통적으로 들어가는 URL, 파라미터 👉 변수로 지정해준다
+const isMobile = window.screen.width >= 1280 ? false : true;
+// 모바일 👉 1280px 이 넘어갈 경우 false 작으면 true
+const getKlipAccessUrl = (method, request_key) => {
+  // 모바일에서 사용하는 Klip Api (ios, android)
+  if (method === "QR") {
+    return `https://klipwallet.com/?target=/a2a?request_key=${request_key}`;
+  }
+  return `kakaotalk://klipwallet/open?url=https://klipwallet.com/?target=/a2a?request_key=${request_key}`;
+  // 카카오톡 어플로 연결되는 Api
+  // 딥링크 👉 모바일 어플의 특정 페이지에 도달 할 수 있는 링크
+};
 
 // safeTransferFrom 함수 (판매(송금)기능)
 export const saleCard = async (
@@ -95,9 +106,15 @@ export const executeContract = (
     .then(res => {
       const requestKey = res.data.request_key;
       // API 로부터 request_key 값
-      const qrcode = `https://klipwallet.com/?target=/a2a?request_key=${requestKey}`;
-      setQrCodeValue(qrcode);
-      // 콜백함수에 담음
+
+      if (isMobile) {
+        // 모바일에서 앱이랑 연결할 경우
+        window.location.href = getKlipAccessUrl("android", requestKey);
+        // 브라우저(window)에서는 👉 getKlipAccessUrl 의 파라미터값대로
+      } else {
+        setQrCodeValue(getKlipAccessUrl("QR", requestKey));
+        // 콜백함수에 담음 (모바일이 아닐경우) 👉 QR 메소드
+      }
 
       let timeId = setInterval(() => {
         // 주기적으로 실행한다 (1초마다)
@@ -112,6 +129,8 @@ export const executeContract = (
               console.log(`[Result] ${JSON.stringify(res2.data.result)}`);
               // pending 상태일땐 1초마다 계속 setInterval
               callback(res2.data.result);
+              setQrCodeValue("DEFAULT");
+              // QR코드를 사용 후에는 초기화시켜준다
             }
           });
       }, 1000); // 1초마다
@@ -128,8 +147,14 @@ export const getAddress = (setQrCodeValue, callback) => {
     })
     .then(res => {
       const requestKey = res.data.request_key;
-      const qrcode = `https://klipwallet.com/?target=/a2a?request_key=${requestKey}`;
-      setQrCodeValue(qrcode);
+      if (isMobile) {
+        // 모바일에서 앱이랑 연결할 경우
+        window.location.href = getKlipAccessUrl("android", requestKey);
+        // 브라우저(window)에서는 👉 getKlipAccessUrl 의 파라미터값대로
+      } else {
+        setQrCodeValue(getKlipAccessUrl("QR", requestKey));
+        // 콜백함수에 담음 (모바일이 아닐경우) 👉 QR 메소드
+      }
 
       let timeId = setInterval(() => {
         axios
@@ -141,6 +166,8 @@ export const getAddress = (setQrCodeValue, callback) => {
               console.log(`[Result] ${JSON.stringify(res2.data.result)}`);
               callback(res2.data.result.klaytn_address);
               clearInterval(timeId);
+              setQrCodeValue("DEFAULT");
+              // QR코드를 사용 후에는 초기화시켜준다
             }
           });
       }, 1000);
