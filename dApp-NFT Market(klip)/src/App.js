@@ -5,7 +5,15 @@ import { useEffect, useState } from "react";
 import QRCode from "qrcode.react";
 import * as KlipAPI from "./api/UseKlip";
 import { fetchCardsOf, getBalance } from "./api/UseCaver";
-import { Alert, Container, Card, Nav, Form, Button } from "react-bootstrap";
+import {
+  Alert,
+  Container,
+  Card,
+  Nav,
+  Form,
+  Button,
+  Modal,
+} from "react-bootstrap";
 import { MARKET_CONTRACT } from "./constants";
 
 const DEFAULT_QR_CODE = "DEFAULT"; // QR코드는 기본 DEFAULT 값
@@ -16,18 +24,20 @@ function App() {
   // 인자로 들어가는값은 tokenId, tokenUri
   // UseCaver.js 파일에서 nfts 배열안에 👉 id와 uri
   const [myBalance, setMyBalance] = useState("0");
-  const [myAddress, setMyAddress] = useState(DEFAULT_ADDRESS);
+  const [myAddress, setMyAddress] = useState(
+    "0x319229707F620F673a1261DCcCe4E239A71f3Bc0"
+  );
   const [qrvalue, setQrvalue] = useState(DEFAULT_QR_CODE);
   const [tab, setTab] = useState("MARKET"); // Footer 하단 클릭하면 바뀌는 useState
   const [mintImgUrl, setMintImgUrl] = useState("");
 
-  const fetchMarketNFT = async () => {
-    if (myAddress === DEFAULT_ADDRESS) {
-      // 내 지갑 주소가 없는경우
-      alert("NO ADDRESS");
-      return; // ⭐ 리턴을 해줘야한다 !
-    } // 지갑주소가 없으면 알림창
+  const [showModal, setShowModal] = useState(false);
+  const [modalProps, setModalProps] = useState({
+    title: "MODAL",
+    onConfirm: () => {},
+  });
 
+  const fetchMarketNFT = async () => {
     const nftMarket = await fetchCardsOf(MARKET_CONTRACT);
     // 꼭 지갑주소 아니더라도 컨트랙트 주소로도 전송이 가능하다
     setNfts(nftMarket);
@@ -41,13 +51,28 @@ function App() {
 
   const onClickCard = id => {
     if (tab === "WALLET") {
-      onClickMyCard(id);
+      // ModalProps 의 값을 설정
+      setModalProps({
+        title: "NFT를 마켓에 판매 하시겠습니까?",
+        onConfirm: () => {
+          onClickMyCard(id);
+        },
+      });
+      setShowModal(true);
+      // 모달창 띄우기 (true)
     }
     if (tab === "MARKET") {
-      onClickMarketCard(id);
+      // ModalProps 의 값을 설정
+      setModalProps({
+        title: "NFT를 구매 하시겠습니까?",
+        onConfirm: () => {
+          onClickMarketCard(id);
+        },
+      });
+      setShowModal(true);
+      // 모달창 띄우기 (true)
     }
   };
-
   // NFT를 판매하는 함수
   const onClickMyCard = async tokenId => {
     // tokenId 의 파라미터값은 밑에서 map 으로 반환한 값이 된다
@@ -64,21 +89,23 @@ function App() {
   };
 
   const getUserData = () => {
-    KlipAPI.getAddress(setQrvalue, async address => {
-      setMyAddress(address);
-      const balance = await getBalance(address);
-      // UseCaver.js 에서 가져온 getBalance
-      setMyBalance(balance);
+    // ModalProps 의 값을 설정
+    setModalProps({
+      title: "Klip 지갑을 연결하시겠습니까?",
+      onConfirm: () => {
+        KlipAPI.getAddress(setQrvalue, async address => {
+          setMyAddress(address);
+          const balance = await getBalance(address);
+          // UseCaver.js 에서 가져온 getBalance
+          setMyBalance(balance);
+        });
+      },
     });
+    setShowModal(true);
+    // 모달창 띄우기 (true)
   };
-  const onClickMint = uri => {
-    // uri 의 파라미터 값은 밑에서 mintImgUrl 으로 반환한 값이 된다(useState 값)
-    if (myAddress === DEFAULT_ADDRESS) {
-      // 내 지갑 주소가 없는경우
-      alert("NO ADDRESS");
-      return; // ⭐ 리턴을 해줘야한다 !
-    } // 지갑주소가 없으면 알림창
 
+  const onClickMint = uri => {
     const randomTokenId = parseInt(Math.random() * 1000000);
     // TokenId 를 수동으로 지정하지않고 1000000 안에서 랜덤한 값
     KlipAPI.mintCardWithURI(
@@ -196,7 +223,43 @@ function App() {
           </div>
         ) : null}
       </div>
-
+      <Modal
+        centered
+        size="md"
+        show={showModal}
+        // useState 상태값 true 혹은 false 👉 false이면 모달창 안나타탐
+        onHide={() => {
+          setShowModal(false);
+        }}
+      >
+        <Modal.Header
+          style={{ border: 0, backgroundColor: "black", opacity: 0.8 }}
+        >
+          <Modal.Title>{modalProps.title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Footer
+          style={{ border: 0, backgroundColor: "black", opacity: 0.8 }}
+        >
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setShowModal(false);
+            }}
+          >
+            닫기
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              modalProps.onConfirm();
+              setShowModal(false);
+            }}
+            style={{ backgroundColor: "#810034", borderColor: "#810034" }}
+          >
+            진행
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <nav
         style={{ backgroundColor: "#1b1717", height: 45 }}
         className="navbar fixed-bottom navbar-light"
