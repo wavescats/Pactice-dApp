@@ -18,10 +18,16 @@ function App() {
   const [myBalance, setMyBalance] = useState("0");
   const [myAddress, setMyAddress] = useState(DEFAULT_ADDRESS);
   const [qrvalue, setQrvalue] = useState(DEFAULT_QR_CODE);
-  const [tab, setTab] = useState("MINT"); // Footer 하단 클릭하면 바뀌는 useState
+  const [tab, setTab] = useState("MARKET"); // Footer 하단 클릭하면 바뀌는 useState
   const [mintImgUrl, setMintImgUrl] = useState("");
 
   const fetchMarketNFT = async () => {
+    if (myAddress === DEFAULT_ADDRESS) {
+      // 내 지갑 주소가 없는경우
+      alert("NO ADDRESS");
+      return; // ⭐ 리턴을 해줘야한다 !
+    } // 지갑주소가 없으면 알림창
+
     const nftMarket = await fetchCardsOf(MARKET_CONTRACT);
     // 꼭 지갑주소 아니더라도 컨트랙트 주소로도 전송이 가능하다
     setNfts(nftMarket);
@@ -68,7 +74,9 @@ function App() {
   const onClickMint = uri => {
     // uri 의 파라미터 값은 밑에서 mintImgUrl 으로 반환한 값이 된다(useState 값)
     if (myAddress === DEFAULT_ADDRESS) {
+      // 내 지갑 주소가 없는경우
       alert("NO ADDRESS");
+      return; // ⭐ 리턴을 해줘야한다 !
     } // 지갑주소가 없으면 알림창
 
     const randomTokenId = parseInt(Math.random() * 1000000);
@@ -84,6 +92,11 @@ function App() {
       }
     );
   };
+
+  useEffect(() => {
+    getUserData(); // 내 지갑주소 & 잔고 확인
+    fetchMarketNFT(); // 마켓에 올라가있는 NFT 확인
+  }, []);
 
   return (
     <div className="App">
@@ -107,16 +120,21 @@ function App() {
         >
           {myBalance}
         </Alert>
-        <Container
-          style={{
-            backgroundColor: "white",
-            width: 300,
-            height: 300,
-            padding: 20,
-          }}
-        >
-          <QRCode value={qrvalue} size={256} style={{ margin: "auto" }} />
-        </Container>
+        {qrvalue !== "DEFAULT" ? (
+          // QR코드가 기본값이 아닐경우 👉 이미지가 없을땐 QR코드가 안나온다
+          <Container
+            style={{
+              backgroundColor: "white",
+              width: 300,
+              height: 300,
+              padding: 20,
+            }}
+          >
+            <QRCode value={qrvalue} size={256} style={{ margin: "auto" }} />
+            <br />
+            <br />
+          </Container>
+        ) : null}
         <br />
         {/* useState 값이 변할때 화면을 보여준다 */}
         {tab === "MARKET" || tab === "WALLET" ? (
@@ -178,8 +196,6 @@ function App() {
           </div>
         ) : null}
       </div>
-
-      <button onClick={fetchMyNFT}>NFT 가져오기</button>
 
       <nav
         style={{ backgroundColor: "#1b1717", height: 45 }}
