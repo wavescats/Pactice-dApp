@@ -13,6 +13,8 @@ import {
   Form,
   Button,
   Modal,
+  Row,
+  Col,
 } from "react-bootstrap";
 import { MARKET_CONTRACT } from "./constants";
 
@@ -24,9 +26,7 @@ function App() {
   // 인자로 들어가는값은 tokenId, tokenUri
   // UseCaver.js 파일에서 nfts 배열안에 👉 id와 uri
   const [myBalance, setMyBalance] = useState("0");
-  const [myAddress, setMyAddress] = useState(
-    "0x319229707F620F673a1261DCcCe4E239A71f3Bc0"
-  );
+  const [myAddress, setMyAddress] = useState(DEFAULT_ADDRESS);
   const [qrvalue, setQrvalue] = useState(DEFAULT_QR_CODE);
   const [tab, setTab] = useState("MARKET"); // Footer 하단 클릭하면 바뀌는 useState
   const [mintImgUrl, setMintImgUrl] = useState("");
@@ -37,6 +37,8 @@ function App() {
     onConfirm: () => {},
   });
 
+  const rows = nfts.slice(nfts.length / 2);
+  // nfts에 있는 nft 배열을 몇개 보여줄건지
   const fetchMarketNFT = async () => {
     const nftMarket = await fetchCardsOf(MARKET_CONTRACT);
     // 꼭 지갑주소 아니더라도 컨트랙트 주소로도 전송이 가능하다
@@ -145,7 +147,7 @@ function App() {
           variant={"balance"}
           style={{ backgroundColor: "pink", fontSize: 25, color: "black" }}
         >
-          {myBalance}
+          {myAddress !== DEFAULT_ADDRESS ? `${myBalance} KLAY` : "지갑연동하기"}
         </Alert>
         {qrvalue !== "DEFAULT" ? (
           // QR코드가 기본값이 아닐경우 👉 이미지가 없을땐 QR코드가 안나온다
@@ -165,9 +167,43 @@ function App() {
         <br />
         {/* useState 값이 변할때 화면을 보여준다 */}
         {tab === "MARKET" || tab === "WALLET" ? (
-          <div className="container" style={{ padding: 50, width: "50%" }}>
+          <div className="container" style={{ padding: 0, width: "100%" }}>
+            {rows.map((list, index) => (
+              // 한줄에 이미지를 두개씩 출력하도록
+              <Row key={`row_${index}`}>
+                {/* Row 세로줄 */}
+                <Col style={{ marginRight: 0, paddingRight: 0 }}>
+                  {/* Column 가로줄 */}
+                  <Card
+                    onClick={() => {
+                      onClickCard(nfts[index * 2].id);
+                    }}
+                  >
+                    <Card.Img src={nfts[index * 2].uri} />
+                  </Card>
+                  [{nfts[index * 2].id}]NFT
+                </Col>
+                <Col>
+                  {nfts.length > index * 2 + 1 ? (
+                    // nfts 배열길이가 index 보다 크면 실행
+                    <Card
+                      onClick={() => {
+                        onClickCard(nfts[index * 2 + 1].id);
+                      }}
+                    >
+                      <Card.Img src={nfts[index * 2 + 1].uri} />
+                      {/* nfts 배열안에 id와 uri 를 짝지어서 출력 */}
+                    </Card>
+                  ) : null}
+                  {nfts.length > index * 2 + 1 ? (
+                    // nfts 배열길이가 index 보다 크면 실행
+                    <>[{nfts[index * 2 + 1].id}]NFT</>
+                  ) : null}
+                </Col>
+              </Row>
+            ))}
             {/* map을 이용하여 nfts 배열에서 index 순서대로 이미지 출력 */}
-            {nfts.map((list, index) => (
+            {/* {nfts.map((list, index) => (
               <Card.Img
                 className="img-responsive"
                 key={index}
@@ -177,7 +213,7 @@ function App() {
                 }}
                 // UseCaver.js 파일에서 nfts 배열안에 👉 id와 uri
               />
-            ))}
+            ))} */}
           </div>
         ) : null}
 
@@ -274,7 +310,7 @@ function App() {
               }}
               className="row d-flex flex-column justify-content-center align-items-center"
             >
-              <div style={{ color: "white" }}>MARKET</div>
+              <div className="footer-hover">MARKET</div>
             </div>
             <div
               onClick={() => {
@@ -282,7 +318,7 @@ function App() {
               }}
               className="row d-flex flex-column justify-content-center align-items-center"
             >
-              <div style={{ color: "white" }}>MINT</div>
+              <div className="footer-hover">MINT</div>
             </div>
             <div
               onClick={() => {
@@ -291,7 +327,7 @@ function App() {
               }}
               className="row d-flex flex-column justify-content-center align-items-center"
             >
-              <div style={{ color: "white" }}>WALLET</div>
+              <div className="footer-hover">WALLET</div>
             </div>
           </div>
         </Nav>
