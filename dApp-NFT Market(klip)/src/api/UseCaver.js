@@ -43,15 +43,31 @@ export const fetchCardsOf = async address => {
     tokenIds.push(id);
     // 빈배열에 반복문을 돌려서 tokenId를 push 한다
   }
+
   const tokenUris = [];
   for (let i = 0; i < nftOf; i++) {
-    const uris = await NFTContract.methods.tokenURI(tokenIds[i]).call();
-    // 해당 tokenId를 입력하면 tokenURI(이미지) 가 나온다
-    tokenUris.push(uris);
-    // 빈배열에 반복문을 돌려서 tokenURI를 push 한다
+    const metadataUrl = await NFTContract.methods.tokenURI(tokenIds[i]).call();
+    // 👉 메타데이터 KAS 주소
+    // https://metadata-store.klaytnapi.com/e2d83fbb-c123-811c-d5f3-69132v482c51/4a85e6be-3215-93e6-d8a9-3a7d633584e7.png 👉 이런식으로 적혀있고
+    const response = await axios.get(metadataUrl);
+    // axios 로 불러와서 변수에 담아준다
+    const uriJSON = response.data;
+    // response 의 json 데이터를 변수에 담아준다
+    tokenUris.push(uriJSON.image);
+    // 빈배열에 반복문을 돌려서 uriJSON안에 이미지를 뽑아내서 push 한다
   }
   console.log(`${tokenIds}`);
   console.log(tokenUris);
+
+  // const tokenUris = [];
+  // for (let i = 0; i < nftOf; i++) {
+  //   const uris = await NFTContract.methods.tokenURI(tokenIds[i]).call();
+  //   // 해당 tokenId를 입력하면 tokenURI(이미지) 가 나온다
+  //   tokenUris.push(uris);
+  //   // 빈배열에 반복문을 돌려서 tokenURI를 push 한다
+  // }
+  // console.log(`${tokenIds}`);
+  // console.log(tokenUris);
 
   const nfts = [];
   for (let i = 0; i < nftOf; i++) {

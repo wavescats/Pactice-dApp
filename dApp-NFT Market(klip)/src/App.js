@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode.react";
 import * as KlipAPI from "./api/UseKlip";
+import * as KASAPI from "./api/UseKAS";
 import { fetchCardsOf, getBalance } from "./api/UseCaver";
 import {
   Alert,
@@ -30,6 +31,7 @@ function App() {
   const [qrvalue, setQrvalue] = useState(DEFAULT_QR_CODE);
   const [tab, setTab] = useState("MARKET"); // Footer 하단 클릭하면 바뀌는 useState
   const [mintImgUrl, setMintImgUrl] = useState("");
+  const [mintTokenId, setMintTokenId] = useState("");
 
   const [showModal, setShowModal] = useState(false);
   const [modalProps, setModalProps] = useState({
@@ -107,13 +109,21 @@ function App() {
     // 모달창 띄우기 (true)
   };
 
-  const onClickMint = uri => {
-    const randomTokenId = parseInt(Math.random() * 1000000);
+  const onClickMint = (uri, tokenId) => {
+    // const randomTokenId = parseInt(Math.random() * 1000000);
     // TokenId 를 수동으로 지정하지않고 1000000 안에서 랜덤한 값
+    // 👆👆 랜덤은 지정은 이제 안씀
+
+    const metadataURL = KASAPI.uploadMetaDate(uri);
+    if (!metadataURL) {
+      alert("메타데이터 업로드에 실패하였습니다");
+      return;
+    }
+
     KlipAPI.mintCardWithURI(
       myAddress, // useState에 담겨있는 나의주소
-      randomTokenId, // 랜덤한 TokenId
-      uri, // uri 인자 (이미지 링크) 👉 target.value
+      tokenId, // 밑에서 input으로 지정된 TokenId 👉 target.value
+      metadataURL, // KASAPI -에서 가져오는 메타데이터
       setQrvalue, // mintCardWithURI에 대한 QR코드 생성
       callback => {
         // NFT 민팅이 잘 되었는지 확인
@@ -239,11 +249,22 @@ function App() {
                       type="text"
                       placeholder="이미지 주소를 입력하세요"
                     />
+                    <br />
+                    <Form.Control // text input 창
+                      value={mintTokenId}
+                      // 토큰ID
+                      onChange={e => {
+                        console.log(e.target.value);
+                        setMintTokenId(e.target.value);
+                      }} // input 창에 토큰ID를 입력하면 그대로 useState에 담긴다
+                      type="text"
+                      placeholder="Token ID를 입력하세요"
+                    />
                   </Form.Group>
                   <br />
                   <Button
                     onClick={() => {
-                      onClickMint(mintImgUrl);
+                      onClickMint(mintImgUrl, mintTokenId);
                     }}
                     variant="primary"
                     style={{
