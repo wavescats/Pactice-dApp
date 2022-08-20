@@ -27,7 +27,9 @@ function App() {
   // 인자로 들어가는값은 tokenId, tokenUri
   // UseCaver.js 파일에서 nfts 배열안에 👉 id와 uri
   const [myBalance, setMyBalance] = useState("0");
-  const [myAddress, setMyAddress] = useState(DEFAULT_ADDRESS);
+  const [myAddress, setMyAddress] = useState(
+    "0x319229707F620F673a1261DCcCe4E239A71f3Bc0"
+  );
   const [qrvalue, setQrvalue] = useState(DEFAULT_QR_CODE);
   const [tab, setTab] = useState("MARKET"); // Footer 하단 클릭하면 바뀌는 useState
   const [mintImgUrl, setMintImgUrl] = useState("");

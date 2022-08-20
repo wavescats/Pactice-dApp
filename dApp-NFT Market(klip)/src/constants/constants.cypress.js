@@ -12,6 +12,7 @@ export const CHAIN_ID = "8217";
 
 export const KIP17_CONTRACT = "0x3965ee847d44049d55b48fd7e4af8c11fd290d7b";
 // 공용으로 사용하는 컨트랙트 주소 (클레이튼 협업 - 토큰할당)
+// 카카오 클립에서 확인할수 있는 컨트랙트주소 (1,016,100 ~ 1,016,199)
 
 // export const MARKET_CONTRACT = "0x087AB1B78A0922E9D67Ad43E09A283F0cf93aF31";
 // 강사님 컨트랙트 주소

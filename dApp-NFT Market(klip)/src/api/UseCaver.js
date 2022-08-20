@@ -6,6 +6,7 @@ import {
   CHAIN_ID,
   KIP17_CONTRACT,
 } from "../constants/index";
+// import axios from "axios";
 
 const option = {
   // Klaytn Node API를 사용하기 위한 코드 (Docs에 나와있음)
@@ -34,7 +35,7 @@ export const fetchCardsOf = async address => {
   const nftOf = await NFTContract.methods.balanceOf(address).call();
   // 스마트컨트랙트 배포후에 나오는 함수
   // 해당 주소에 몇개의 NFT를 보유중인지 개수를 표시하는 함수 balanceOf
-  console.log(nftOf);
+  console.log("보유수", nftOf);
 
   const tokenIds = [];
   for (let i = 0; i < nftOf; i++) {
@@ -49,15 +50,15 @@ export const fetchCardsOf = async address => {
     const metadataUrl = await NFTContract.methods.tokenURI(tokenIds[i]).call();
     // 👉 메타데이터 KAS 주소
     // https://metadata-store.klaytnapi.com/e2d83fbb-c123-811c-d5f3-69132v482c51/4a85e6be-3215-93e6-d8a9-3a7d633584e7.png 👉 이런식으로 적혀있고
-    const response = await axios.get(metadataUrl);
+    let response = await fetch(metadataUrl);
     // axios 로 불러와서 변수에 담아준다
-    const uriJSON = response.data;
+    let uriJSON = await response.data;
     // response 의 json 데이터를 변수에 담아준다
-    tokenUris.push(uriJSON.image);
+    tokenUris.push(uriJSON);
     // 빈배열에 반복문을 돌려서 uriJSON안에 이미지를 뽑아내서 push 한다
   }
-  console.log(`${tokenIds}`);
-  console.log(tokenUris);
+  console.log("아이디", tokenIds);
+  console.log("이미지", tokenUris);
 
   // const tokenUris = [];
   // for (let i = 0; i < nftOf; i++) {
@@ -74,7 +75,7 @@ export const fetchCardsOf = async address => {
     nfts.push({ id: tokenIds[i], uri: tokenUris[i] });
     // 빈배열에 반복문을 돌려서 객체타입으로 담는다
   }
-  console.log(nfts);
+  console.log("nfts", nfts);
   return nfts;
 };
 
@@ -93,7 +94,7 @@ export const getBalance = address => {
       caver.utils.hexToNumberString(res)
       // 16진수문자열로 변경
     );
-    console.log(balance);
+    console.log("잔고", balance);
     return balance;
   });
 };

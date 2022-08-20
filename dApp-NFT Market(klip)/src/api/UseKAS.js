@@ -1,38 +1,38 @@
 import axios from "axios";
 import { ACCESS_KEY_ID, SECRET_ACCESS_KEY, CHAIN_ID } from "../constants/index";
 
-const option = {
-  headers: {
-    Authorization:
-      "Basic " +
-      Buffer.from(ACCESS_KEY_ID + ":" + SECRET_ACCESS_KEY).toString("base64"),
-    "x-chain-id": CHAIN_ID,
-    "content-type": "application/json",
-  },
-};
-
-// 👆👆👆 대괄호를 풀어서 작성한 option 👆👆👆
-// const option = {
-//   // Klaytn Node API를 사용하기 위한 코드 (Docs에 나와있음)
-//   headers: [
-//     {
-//       name: "Authorization",
-//       value:
-//         "Basic " +
-//         Buffer.from(ACCESS_KEY_ID + ":" + SECRET_ACCESS_KEY).toString("base64"),
-//     },
-//     { name: "x-chain-id", value: CHAIN_ID },
-//   ],
-// };
-
 export const uploadMetaDate = async imageUrl => {
-  const _name = "wavescats";
-  const _description = "THISISWAVES🌊";
+  const option = {
+    headers: {
+      Authorization:
+        "Basic " +
+        Buffer.from(ACCESS_KEY_ID + ":" + SECRET_ACCESS_KEY).toString("base64"),
+      "x-chain-id": CHAIN_ID,
+      "content-type": "application/json",
+    },
+  };
+
+  // 👆👆👆 대괄호를 풀어서 작성한 option 👆👆👆
+  // const option = {
+  //   // Klaytn Node API를 사용하기 위한 코드 (Docs에 나와있음)
+  //   headers: [
+  //     {
+  //       name: "Authorization",
+  //       value:
+  //         "Basic " +
+  //         Buffer.from(ACCESS_KEY_ID + ":" + SECRET_ACCESS_KEY).toString("base64"),
+  //     },
+  //     { name: "x-chain-id", value: CHAIN_ID },
+  //   ],
+  // };
+
+  // const _name = "wavescats";
+  // const _description = "THISISWAVES🌊";
 
   const metadata = {
     metadata: {
-      name: _name,
-      description: _description,
+      name: "wavescats",
+      description: "THISISWAVES🌊",
       image: imageUrl,
     },
     // https://refs.klaytnapi.com/ko/metadata/latest#operation/uploadMetadata
